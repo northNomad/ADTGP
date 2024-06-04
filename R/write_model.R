@@ -33,7 +33,7 @@
 #' @references \url{https://mc-stan.org/docs/reference-manual/}
 #' @examples
 #' \dontrun{
-#' n <- 100
+#' n <- 100L
 #' igg <- rnbinom(100, mu=50, size=2)
 #'
 #' prior_samples <- ADTnorm_prior_predict(n=n, igg=igg, variables="poi")

@@ -60,7 +60,7 @@ protein count given a vector of isotype control (igg) count.
 }
 \examples{
 \dontrun{
-n <- 100
+n <- 100L
 igg <- rnbinom(100, mu=50, size=2)
 
 prior_samples <- ADTnorm_prior_predict(n=n, igg=igg, variables="poi")
