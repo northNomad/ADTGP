@@ -138,9 +138,39 @@ ADTnorm_prior_predict <- function(
 
 
 
-#' Fits data
-ADTnorm_fit_data <- function(
-    n=NULL,
+#' Fits model and draws posterior samples of ADT counts
+#'
+#' Writes a stan model and draws samples from the posterior distribution of
+#' protein count given a vector of isotype control (igg) count.
+#'
+#' @param igg A numeric vector giving the igg count.
+#' @param priors Likelihood functions in stan syntax as a named
+#' list of characters. See reference for avaiable options.
+#' \describe{
+#'   \item{\strong{mu0: the grand mean in log scale}}
+#'   {Default is "gamma(7, 2)"}
+#'   \item{\strong{phi: overdispersion}}
+#'   {Default is "gamma(.5, .5)"}
+#'   \item{\strong{etasq: maximum covariance between any two cells}}
+#'   {Default is "normal(2, 1)"}
+#'   \item{\strong{rhosq: rate of decline in covariance}}
+#'   {Default is "normal(2, 1)"}
+#'   \item{\strong{sigmasq: extra covariance of the same cell}}
+#'   {Default is "normal(2, 1)"}
+#' }
+#' @param fn File path to store stan model file.
+#' @param parallel_chains Number of parallel chains to run. Defaults to 4.
+#' @param iter_warmup Number of warmup iterations before sampling.
+#'                    Defaults to 1,000.
+#' @param iter_sampling Number of samples to draw from each chain.
+#'                    Defaults to 1,000.
+#' @param variables A character vector declaring which sampled variables
+#'                  to return.
+#'                  Defaults to "poi_rep" which is the count of the
+#'                  protein of interest.
+#' @return A stanfit object and a matrix of draws stored in a named list.
+#' @references \url{https://mc-stan.org/docs/reference-manual/}
+ADTnorm_fit <- function(
     igg=NULL,
     poi=NULL,
     n_rep=100L,
@@ -155,24 +185,24 @@ ADTnorm_fit_data <- function(
 
     fn="StanModel_fit_data.stan",
     parallel_chains=4,
-    iter_warmup=5e3,
+    iter_warmup=1e3,
     iter_sampling=1e3,
     variables="poi_rep"){
 
-  ## Checks if 'n' is type integer
-  if(is.integer(n) == FALSE){ stop("Error: n is not an integer.") }
-
+  n <- length(igg)
   ## Checks if 'n_rep' is type integer
   if(is.integer(n_rep) == FALSE){ stop("Error: n_rep is not an integer.") }
 
   ## Checks if 'igg' is type real
   if(is.numeric(igg) == FALSE){ stop("Error: igg is not numeric.") }
 
-  ## Checks if 'igg' is type real
+  ## Checks if 'igg_rep' is type real
   if(is.numeric(igg_rep) == FALSE){ stop("Error: igg_rep is not numeric.") }
 
-  ## Checks if length of 'n' and 'igg' matches
-  if(n != length(igg)){ stop("Error: length of igg and n doesn't match.")}
+  ## Checks if length of 'poi' and 'igg' matches
+  if(length(igg) != length(poi)){stop("Error: length of igg and poi
+                                       doesn't match.")
+                                }
 
   ## Checks if length of 'n_rep' and 'igg_rep' matches
   if(n_rep != length(igg_rep)){ stop("Error: length of igg_rep and
