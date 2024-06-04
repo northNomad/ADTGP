@@ -10,7 +10,7 @@
 #' \describe{
 #'   \item{\strong{mu0: the grand mean in log scale}}
 #'   {Default is "gamma(7, 2)"}
-#'   \item{\strong{thi: overdispersion}}
+#'   \item{\strong{phi: overdispersion}}
 #'   {Default is "gamma(.5, .5)"}
 #'   \item{\strong{etasq: maximum covariance between any two cells}}
 #'   {Default is "normal(2, 1)"}
@@ -44,7 +44,7 @@ ADTnorm_prior_predict <- function(
     n=NULL,
     igg=NULL,
     priors=list(mu0="gamma(7, 2)",
-                thi="gamma(.5, .5)",
+                phi="gamma(.5, .5)",
                 etasq="normal(2, 1)",
                 rhosq="normal(2, 1)",
                 sigmasq="normal(2, 1)"
@@ -81,7 +81,7 @@ ADTnorm_prior_predict <- function(
 
         "parameters{
           real mu0;
-          real<lower=0> thi;
+          real<lower=0> phi;
 
           real<lower=0> etasq; //GP priors
           real<lower=0> rhosq;
@@ -92,7 +92,7 @@ ADTnorm_prior_predict <- function(
 
         "transformed parameters{
           matrix[N, N] K;
-          K = gp_exp_quad_cov(igg, sqrt(etasq), rhosq);
+          K = gp_exp_quad_cov(igg, sqrt(etasq), sqrt(rhosq));
           for(i in 1:N){
             K[i, i] = K[i, i] + sigmasq;
           }
@@ -110,7 +110,7 @@ ADTnorm_prior_predict <- function(
           gamma = multi_normal_rng(rep_vector(0, N), K);
 
           for(i in 1:N){
-            poi[i] = neg_binomial_2_log_rng(mu0 + gamma[i], thi);
+            poi[i] = neg_binomial_2_log_rng(mu0 + gamma[i], phi);
           }
         }",
         ""
@@ -132,4 +132,144 @@ ADTnorm_prior_predict <- function(
            ) -> out
 
       return(out)
+}
+
+
+
+
+
+#' Fits data
+ADTnorm_fit_data <- function(
+    n=NULL,
+    igg=NULL,
+    poi=NULL,
+    n_rep=100L,
+    igg_rep=rep(0, 100),
+
+    priors=list(mu0="gamma(7, 2)",
+                phi="gamma(.5, .5)",
+                etasq="normal(2, 1)",
+                rhosq="normal(2, 1)",
+                sigmasq="normal(2, 1)"
+    ),
+
+    fn="StanModel_fit_data.stan",
+    parallel_chains=4,
+    iter_warmup=5e3,
+    iter_sampling=1e3,
+    variables="poi_rep"){
+
+  ## Checks if 'n' is type integer
+  if(is.integer(n) == FALSE){ stop("Error: n is not an integer.") }
+
+  ## Checks if 'n_rep' is type integer
+  if(is.integer(n_rep) == FALSE){ stop("Error: n_rep is not an integer.") }
+
+  ## Checks if 'igg' is type real
+  if(is.numeric(igg) == FALSE){ stop("Error: igg is not numeric.") }
+
+  ## Checks if 'igg' is type real
+  if(is.numeric(igg_rep) == FALSE){ stop("Error: igg_rep is not numeric.") }
+
+  ## Checks if length of 'n' and 'igg' matches
+  if(n != length(igg)){ stop("Error: length of igg and n doesn't match.")}
+
+  ## Checks if length of 'n_rep' and 'igg_rep' matches
+  if(n_rep != length(igg_rep)){ stop("Error: length of igg_rep and
+                                      n_rep doesn't match.")
+                              }
+
+
+  priors <- lapply(priors, function(i) paste0("~", i, ";")) ## change syntax
+  priors <- lapply(seq_along(priors),
+                   function(y, n, i){ paste(n[[i]], y[[i]]) },
+                   y=priors, n=names(priors)
+  )
+  priors <- unlist(priors)
+
+
+  c("data{
+          int N;
+          int n_rep;
+          array[N] real igg_rep;
+
+          array[N] real igg;
+          array[N] int poi;
+        }",
+
+    "",
+
+    "parameters{
+          real mu0;
+          real<lower=0> phi;
+
+          real<lower=0> etasq; //GP priors
+          real<lower=0> rhosq;
+          real<lower=0> sigmasq;
+
+          vector[N] theta; // isotropic normal
+        }",
+
+    "",
+
+    "transformed parameters{
+          matrix[N, N] K;
+          matrix[N, N] L_K;
+          K = gp_exp_quad_cov(igg, sqrt(etasq), sqrt(rhosq));
+          for(i in 1:N){
+            K[i, i] = K[i, i] + sigmasq;
+          }
+          L_K = cholesky_decompose(K);
+        }",
+
+    "",
+
+    "model{",
+    "theta ~ std_normal();",
+    priors,
+    "vector[N] gamma;",
+    "gamma = L_K * theta;",
+    "poi ~ neg_binomial_2_log(mu0 + gamma, phi);",
+    "}",
+
+    "",
+
+    "generated quantities{
+          vector[n_rep] poi_rep;
+          vector[n_rep] gamma_rep;
+
+          matrix[n_rep, n_rep] K_rep;
+          matrix[n_rep, n_rep] L_K_rep;
+          K_rep = gp_exp_quad_cov(igg_rep, sqrt(etasq), sqrt(rhosq));
+          for(i in 1:N){
+            K_rep[i, i] = K_rep[i, i] + sigmasq;
+          }
+          L_K_rep = cholesky_decompose(K_rep);
+
+          gamma_rep = L_K_rep * theta;
+
+          for(i in 1:n_rep){
+            poi_rep[i] = neg_binomial_2_log_rng(mu0 + gamma_rep[i], phi);
+          }
+        }",
+    ""
+  ) -> model_text
+
+  writeLines(model_text, fn) ## write model to stan file
+
+  m <- cmdstanr::cmdstan_model(fn) ## compile model
+  message("Stan model finished compiling.")
+
+  p <- m$sample(data=list(N=n, poi=poi, igg=igg, n_rep=n_rep, igg_rep=igg_rep),
+                parallel_chains=parallel_chains,
+                iter_warmup=iter_warmup,
+                iter_sampling=iter_sampling
+  )
+
+  list(stanfit=p,
+       draws=p$draws(variables=variables, format="draws_matrix")
+  ) -> out
+
+  return(out)
+
 }
