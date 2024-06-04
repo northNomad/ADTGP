@@ -221,7 +221,7 @@ ADTnorm_fit <- function(
   c("data{
           int N;
           int n_rep;
-          array[N] real igg_rep;
+          array[n_rep] real igg_rep;
 
           array[N] real igg;
           array[N] int poi;
@@ -267,16 +267,19 @@ ADTnorm_fit <- function(
     "generated quantities{
           vector[n_rep] poi_rep;
           vector[n_rep] gamma_rep;
-
+          vector[n_rep] theta_rep; // isotropic normal
+          for(i in 1:n_rep){
+            theta_rep[i] = std_normal_rng();
+          }
           matrix[n_rep, n_rep] K_rep;
           matrix[n_rep, n_rep] L_K_rep;
           K_rep = gp_exp_quad_cov(igg_rep, sqrt(etasq), sqrt(rhosq));
-          for(i in 1:N){
+          for(i in 1:n_rep){
             K_rep[i, i] = K_rep[i, i] + sigmasq;
           }
           L_K_rep = cholesky_decompose(K_rep);
 
-          gamma_rep = L_K_rep * theta;
+          gamma_rep = L_K_rep * theta_rep;
 
           for(i in 1:n_rep){
             poi_rep[i] = neg_binomial_2_log_rng(mu0 + gamma_rep[i], phi);
