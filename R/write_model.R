@@ -1,11 +1,53 @@
+#' Perform prior predictive check of protein count
+#'
+#' Writes a stan model and draws samples from the prior distribution of
+#' protein count given a vector of isotype control (igg) count.
+#'
+#' @param n An integer declaring the number of cells to simulate.
+#' @param igg A numeric vector of length \code{n} giving the igg count.
+#' @param priors Likelihood functions in stan syntax as a named
+#' list of characters. See reference for avaiable options.
+#' \describe{
+#'   \item{\strong{mu0: the grand mean in log scale}}
+#'   {Default is "gamma(7, 2)"}
+#'   \item{\strong{thi: overdispersion}}
+#'   {Default is "gamma(.5, .5)"}
+#'   \item{\strong{etasq: maximum covariance between any two cells}}
+#'   {Default is "normal(2, 1)"}
+#'   \item{\strong{rhosq: rate of decline in covariance}}
+#'   {Default is "normal(2, 1)"}
+#'   \item{\strong{sigmasq: extra covariance of the same cell}}
+#'   {Default is "normal(2, 1)"}
+#' }
+#' @param fn File path to store stan model file.
+#' @param parallel_chains Number of parallel chains to run. Defaults to 4.
+#' @param iter_warmup Number of warmup iterations before sampling.
+#'                    Defaults to 1,000.
+#' @param iter_sampling Number of samples to draw from each chain.
+#'                    Defaults to 1,000.
+#' @param variables A character vector declaring which sampled variables
+#'                  to return.
+#'                  Defaults to "poi" which is the count of the
+#'                  protein of interest.
+#' @return A stanfit object and a matrix of draws stored in a named list.
+#' @references \url{https://mc-stan.org/docs/reference-manual/}
+#' @examples
+#' \dontrun{
+#' n <- 100
+#' igg <- rnbinom(100, mu=50, size=2)
+#'
+#' prior_samples <- ADTnorm_prior_predict(n=n, igg=igg, variables="poi")
+#' mu_poi <- apply(prior_samples$draws, 2, mean)
+#' plot(igg, mu_poi)
+#' }
 ADTnorm_prior_predict <- function(
     n=NULL,
     igg=NULL,
     priors=list(mu0="gamma(7, 2)",
-                thi="normal(.5, .5)",
-                etasq="normal(2, 2)",
-                rhosq="normal(2, 2)",
-                sigmasq="normal(0, 1)"
+                thi="gamma(.5, .5)",
+                etasq="normal(2, 1)",
+                rhosq="normal(2, 1)",
+                sigmasq="normal(2, 1)"
            ),
     fn="StanModel_prior_predict.stan",
     parallel_chains=4,
