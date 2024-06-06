@@ -107,7 +107,7 @@ ADTnorm_lfe <- function(
     mu0 ~ gamma(7, 2);
     phi ~ gamma(3, 1);
     etasq ~ normal(2, 1);
-    rhosq ~ normal(2, 1);",
+    rhosq ~ uniform(0, 5000);",
     stan_priors,
 
     "vector[N] mu;
@@ -133,9 +133,9 @@ ADTnorm_lfe <- function(
 
   ## Prepare data
   data <- list(N=N, poi=poi, igg=igg)
-  data_covariates <- lapply(seq_len(ncol(design_matrix[, -1])),
+  data_covariates <- lapply(seq_len(ncol(design_matrix[, -1, drop=FALSE])),
                             function(i){
-                              design_matrix[, -1][,i]
+                              design_matrix[, -1, drop=FALSE][,i]
                             })
 
   n_rep <- prod(n_levels[-1])
