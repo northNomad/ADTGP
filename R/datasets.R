@@ -11,7 +11,7 @@
 
 #' Raw protein data from isozyme switching dataset
 #'
-#' A dataset containing raw counts of 46 proteins from 979 cells.
+#' A dataset containing raw counts of 46 proteins from 200 cells.
 #' An IDH1-mutated AML sample was mixed with an IDH2-mutated AML sample
 #' at a 1-to-1 ratio. The mixed cells were injected into the tail vein
 #'  of immunodeficient mice to generate mixed patient derived xenografts.
@@ -21,9 +21,7 @@
 #'  animals (n=5 per treatment) and processed through MissionBio's
 #'  Tapestri single-cell multi-omics pipeline.
 #'
-#'  The "Patient" column was determined using the genotype of the cells, which
-#'  is not provided in this dataset.
 #'  veh and ivo are short-hand for vehicle and ivosidenib, respectively.
 #'
-#' @format A dataframe with 48 columns and 979 rows.
+#' @format A dataframe with 47 columns and 200 rows.
 "idh_pdx"

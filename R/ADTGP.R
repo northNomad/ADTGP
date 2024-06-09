@@ -1,4 +1,35 @@
-ADTnorm_lfe <- function(
+#' Fits model and draws posterior samples of ADT counts
+#'
+#' Writes a stan model and draws samples from the posterior distribution of
+#' protein count given a vector of isotype control (igg) count.
+#'
+#' @param igg A numeric vector giving the igg count.
+#' @param design_matrix A design matrix.
+#' @param priors Likelihood functions in stan syntax as a named
+#' list of characters. See reference for avaiable options.
+#' \describe{
+#'   \item{\strong{mu0: the grand mean in log scale}}
+#'   {Default is "gamma(7, 2)"}
+#'   \item{\strong{phi: overdispersion}}
+#'   {Default is "gamma(.5, .5)"}
+#'   \item{\strong{etasq: maximum covariance between any two cells}}
+#'   {Default is "normal(2, 1)"}
+#'   \item{\strong{rhosq: rate of decline in covariance}}
+#'   {Default is "uniform(0, 5000)"}
+#' }
+#' @param fn File path to store stan model file.
+#' @param parallel_chains Number of parallel chains to run. Defaults to 4.
+#' @param iter_warmup Number of warmup iterations before sampling.
+#'                    Defaults to 5,000.
+#' @param iter_sampling Number of samples to draw from each chain.
+#'                    Defaults to 5,000.
+#' @param variables A character vector declaring which sampled variables
+#'                  to return.
+#'                  Defaults to "poi_rep" which is the count of the
+#'                  protein of interest.
+#' @return A stanfit object and a matrix of draws stored in a named list.
+#' @references \url{https://mc-stan.org/docs/reference-manual/}
+ADTGP <- function(
     igg=NULL,
     poi=NULL,
     design_matrix = NULL,
