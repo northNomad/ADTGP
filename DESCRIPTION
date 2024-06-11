@@ -1,4 +1,4 @@
-Package: ADTnorm
+Package: ADTGP
 Type: Package
 Title: Correcting Single-Cell Antibody Sequencing Data Using Gaussian Process Regression
 Version: 0.1.0
