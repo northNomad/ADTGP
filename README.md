@@ -4,12 +4,14 @@
 # ADTGP
 
 ADTGP uses Gaussian process regression to correct droplet-specific
-technical noise in single-cell protein sequencing data
+technical noise in single-cell protein sequencing data. It returns the
+expected protein expression level when all the cells have the same
+isotype control noise.
 
 ## Installation
 
-You can install the development version of ADTGP from
-[GitHub](https://github.com/) with:
+ADTGP depends on cmdstanr to interact with Stan. Install them first
+before installing ADTGP with:
 
 ``` r
 # First install cmdstanr and stan
@@ -21,10 +23,18 @@ set_cmdstan_path()
 devtools::install_github("northNomad/ADTGP")
 ```
 
-## Example
+## Simulated Data
 
-Using ADTGP to obtain the conditional distribution of CD11b counts where
-all cells share the same isotype control noise.
+To run the same simulation as seen in the manuscript, use:
+
+``` r
+sim <- ADTGP_RunSimulation()
+```
+
+## Real World Example
+
+Here, we use ADTGP to obtain the conditional distribution of CD11b
+counts where all cells share the same isotype control noise.
 
 #### Step1: Prepare data and design matrix
 
