@@ -1,3 +1,7 @@
+#' Runs the simulated example in the manuscript
+#'
+#' Returns the true dataframe, the noisy dataframe, and the stanfit object.
+#' Also draws two plots in the working directory as a side effect.
 ADTGP_RunSimulation <- function(){
   set.seed(6)
   ## parameters for poi count
@@ -108,5 +112,8 @@ ADTGP_RunSimulation <- function(){
   dev.off()
   ###########
 
-  return(fit)
+  list(df_true = d,
+       df_noisy = dsub,
+       stanfit = fit) -> out
+  return(out)
 }
