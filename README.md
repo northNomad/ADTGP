@@ -16,8 +16,8 @@ before installing ADTGP with:
 ``` r
 # First install cmdstanr and stan
 install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
-install_cmdstan()
-set_cmdstan_path()
+cmdstanr::install_cmdstan()
+cmdstanr::set_cmdstan_path()
 
 # install.packages("devtools")
 devtools::install_github("northNomad/ADTGP")
