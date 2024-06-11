@@ -8,6 +8,8 @@ technical noise in single-cell protein sequencing data. It returns the
 expected protein expression level when all the cells have the same
 isotype control noise.
 
+![](images/rect47161-2.png)
+
 ## Installation
 
 ADTGP depends on cmdstanr to interact with Stan. Install them first
