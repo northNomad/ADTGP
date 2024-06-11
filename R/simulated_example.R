@@ -79,12 +79,6 @@ ADTGP_RunSimulation <- function(){
   fit <- ADTGP(igg=dsub$igg, poi=dsub$poi, design_matrix=dm,
               iter_warmup = 1500, iter_sampling = 1500)
 
-
-  plot(density(log(fit$draws[, "T_rep_1"] + 1)))
-  lines(density(log(fit$draws[, "T_rep_2"] + 1)))
-  lines(density(log(big_poi1 + 1)), col="red", lty=1)
-  lines(density(log(big_poi2 + 1)), col="blue", lty=1)
-
   ## Get posterior of Treatment coefficient and calculate l2fc
   bT_post <- fit$stanfit$draws("b_T", format="draws_matrix")
   post_l2fc <- log2(exp(bT_post[, "b_T[1]"] - bT_post[, "b_T[2]"]))
