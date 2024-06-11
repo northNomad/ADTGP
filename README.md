@@ -45,8 +45,14 @@ library(ADTGP)
 data("idh_pdx")
 d <- idh_pdx
 
-## Relevel treatment
+## Relevel treatment. 1 = vehicle; 2 = ivosidenib
 d$Treatment <- ifelse(d$Treatment == "veh", 1, 2)
+
+## Design matrix
+dm <- matrix(nrow=nrow(d), ncol=2)
+colnames(dm) <- c("mu0", "T")
+dm[, "mu0"] <- 1
+dm[, "T"] <- d$Treatment
 ```
 
 #### Step2: Run ADTGP
