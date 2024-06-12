@@ -8,6 +8,8 @@ ADTGP(
   igg = NULL,
   poi = NULL,
   design_matrix = NULL,
+  priors = list(mu0 = "gamma(7, 2)", phi = "gamma(.5, .5)", etasq = "normal(2, 1)", rhosq
+    = "uniform(0, 5000)"),
   fn = "StanModel_fit_data.stan",
   parallel_chains = 4,
   iter_warmup = 5000,
@@ -17,17 +19,9 @@ ADTGP(
 \arguments{
 \item{igg}{A numeric vector giving the igg count.}
 
+\item{poi}{A numeric vector giving the protein of interest count.}
+
 \item{design_matrix}{A design matrix.}
-
-\item{fn}{File path to store stan model file.}
-
-\item{parallel_chains}{Number of parallel chains to run. Defaults to 4.}
-
-\item{iter_warmup}{Number of warmup iterations before sampling.
-Defaults to 5,000.}
-
-\item{iter_sampling}{Number of samples to draw from each chain.
-Defaults to 5,000.}
 
 \item{priors}{Likelihood functions in stan syntax as a named
 list of characters. See reference for avaiable options.
@@ -41,6 +35,16 @@ list of characters. See reference for avaiable options.
   \item{\strong{rhosq: rate of decline in covariance}}
   {Default is "uniform(0, 5000)"}
 }}
+
+\item{fn}{File path to store stan model file.}
+
+\item{parallel_chains}{Number of parallel chains to run. Defaults to 4.}
+
+\item{iter_warmup}{Number of warmup iterations before sampling.
+Defaults to 5,000.}
+
+\item{iter_sampling}{Number of samples to draw from each chain.
+Defaults to 5,000.}
 
 \item{variables}{A character vector declaring which sampled variables
 to return.
