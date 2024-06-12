@@ -15,9 +15,7 @@
 #'   \item{\strong{etasq: maximum covariance between any two cells}}
 #'   {Default is "normal(2, 1)"}
 #'   \item{\strong{rhosq: rate of decline in covariance}}
-#'   {Default is "normal(2, 1)"}
-#'   \item{\strong{sigmasq: extra covariance of the same cell}}
-#'   {Default is "normal(2, 1)"}
+#'   {Default is "uniform(0, 5000)"}
 #' }
 #' @param fn File path to store stan model file.
 #' @param parallel_chains Number of parallel chains to run. Defaults to 4.
@@ -46,8 +44,7 @@ ADTGP_prior <- function(
     priors=list(mu0="gamma(7, 2)",
                 phi="gamma(.5, .5)",
                 etasq="normal(2, 1)",
-                rhosq="uniform(0, 5000)",
-                sigmasq="normal(2, 1)"
+                rhosq="uniform(0, 5000)"
            ),
     fn="StanModel_prior_predict.stan",
     parallel_chains=4,
@@ -85,7 +82,6 @@ ADTGP_prior <- function(
           vector[N] theta;
           real<lower=0> etasq; //GP priors
           real<lower=0> rhosq;
-          real<lower=0> sigmasq;
         }",
 
         "",

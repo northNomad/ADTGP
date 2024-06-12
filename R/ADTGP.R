@@ -33,6 +33,11 @@ ADTGP <- function(
     igg=NULL,
     poi=NULL,
     design_matrix = NULL,
+    priors=list(mu0="gamma(7, 2)",
+                phi="gamma(.5, .5)",
+                etasq="normal(2, 1)",
+                rhosq="uniform(0, 5000)"
+    ),
     fn="StanModel_fit_data.stan",
     parallel_chains=4,
     iter_warmup=5e3,
@@ -55,6 +60,15 @@ ADTGP <- function(
   stan_parameters <- paste0("vector[", n_levels[-1], "] ", b_covariates, ";")
 
   ## Create priors for each covariate to pass to stan
+
+  priors <- lapply(priors, function(i) paste0("~", i, ";")) ## change syntax
+  priors <- lapply(seq_along(priors),
+                   function(y, n, i){ paste(n[[i]], y[[i]]) },
+                   y=priors, n=names(priors)
+  )
+  priors <- unlist(priors)
+
+
   stan_priors <- paste0(b_covariates, " ~ std_normal();")
 
   ## Create generated quantities block
@@ -133,12 +147,9 @@ ADTGP <- function(
   c("model{
     vector[N] gamma;
     theta ~ std_normal();
-    gamma = L_K * theta;
+    gamma = L_K * theta;",
 
-    mu0 ~ gamma(7, 2);
-    phi ~ gamma(3, 1);
-    etasq ~ normal(2, 1);
-    rhosq ~ uniform(0, 5000);",
+    priors,
     stan_priors,
 
     "vector[N] mu;
