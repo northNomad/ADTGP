@@ -4,6 +4,7 @@
 #' protein count given a vector of isotype control (igg) count.
 #'
 #' @param igg A numeric vector giving the igg count.
+#' @param poi A numeric vector giving the protein of interest count.
 #' @param design_matrix A design matrix.
 #' @param priors Likelihood functions in stan syntax as a named
 #' list of characters. See reference for avaiable options.
