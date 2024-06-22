@@ -40,6 +40,9 @@ counts where all cells share the same isotype control noise.
 
 #### Step1: Prepare data and design matrix
 
+If no user defined covariate is added, you don’t need to prepare the
+design matrix and should use the *ADTGP_InterceptOnly* function.
+
 ``` r
 library(ADTGP)
 
@@ -71,6 +74,11 @@ f_CD11b <- ADTGP(igg=d$IgG1,
 #### Trace plot
 
 ``` r
+## packages for plotting
+library(tidyverse)
+library(ggsci)
+library(rethinking)
+
 trace_cd11b <- f_CD11b$stanfit$draws(variables = "mu0")
 trace_cd11b %>%
   as.data.frame() %>%
