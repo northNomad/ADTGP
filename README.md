@@ -25,6 +25,15 @@ cmdstanr::set_cmdstan_path()
 devtools::install_github("northNomad/ADTGP")
 ```
 
+## Before You Start
+
+Gaussian Process is expensive to compute. If you have more than 1,000
+cells, you’ll want to down-sample first. You should still get reliable
+estimates.
+
+**Always check if things make sense by posterior predictive
+simulations.**
+
 ## Simulated Data
 
 To run the same simulation as seen in the manuscript, use:
