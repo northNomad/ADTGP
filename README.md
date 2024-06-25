@@ -49,7 +49,7 @@ counts where all cells share the same isotype control noise.
 
 #### Step1: Prepare data and design matrix
 
-Under the hood, the coefficients for user defined categorical variables
+Under the hood, user defined categorical variables
 take an uninformative standard normal prior.
 
 If no user defined covariate is added, you don’t need to prepare the
