@@ -29,7 +29,8 @@ devtools::install_github("northNomad/ADTGP")
 
 Gaussian Process is expensive to compute. If you have more than 1,000
 cells, you’ll want to down-sample first. You should still get reliable
-estimates.
+estimates. In the simulated example, we were able to recover the true
+parameter value with only 50 cells and uninformative priors.
 
 **Always check if things make sense by posterior predictive
 simulations.**
@@ -49,7 +50,7 @@ counts where all cells share the same isotype control noise.
 
 #### Step1: Prepare data and design matrix
 
-Under the hood, user defined categorical variables
+Under the hood, the coefficients for user defined categorical variables
 take an uninformative standard normal prior.
 
 If no user defined covariate is added, you don’t need to prepare the

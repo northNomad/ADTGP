@@ -35,7 +35,7 @@ devtools::install_github("northNomad/ADTGP")
 
 ## Before You Start
 
-Gaussian Process is expensive to compute. If you have more than 1,000 cells, you'll want to down-sample first. You should still get reliable estimates.
+Gaussian Process is expensive to compute. If you have more than 1,000 cells, you'll want to down-sample first. You should still get reliable estimates. In the simulated example, we were able to recover the true parameter value with only 50 cells and uninformative priors.
 
 **Always check if things make sense by posterior predictive simulations.**
 
